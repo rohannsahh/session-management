@@ -1,9 +1,10 @@
 const express = require("express");
 const User = require("../models/User");
+const authMiddleware = require("../middleware/authMiddleware");
 const router = express.Router();
 
 // Start Session
-router.post("/", (req, res) => {
+router.post("/",authMiddleware, (req, res) => {
   req.session.startTime = new Date();
   req.session.pagesVisited = [];
   req.session.activityLog = [];
@@ -11,7 +12,7 @@ router.post("/", (req, res) => {
 });
 
 // Log Page Visit
-router.post("/page", (req, res) => {
+router.post("/page",authMiddleware, (req, res) => {
   const { page } = req.body;
 
   req.session.pagesVisited.push(page);
@@ -19,7 +20,7 @@ router.post("/page", (req, res) => {
 });
 
 // Log Activity
-router.post("/action", (req, res) => {
+router.post("/action", authMiddleware,(req, res) => {
   const { action } = req.body;
 
   req.session.activityLog.push({ action, timestamp: new Date() });
@@ -27,7 +28,7 @@ router.post("/action", (req, res) => {
 });
 
 // Get Session Logs with Pagination
-router.get("/logs", (req, res) => {
+router.get("/logs", authMiddleware, (req, res) => {
   const { page = 1, limit = 10 } = req.query;
 
   const startIndex = (page - 1) * limit;
@@ -40,7 +41,7 @@ router.get("/logs", (req, res) => {
 });
 
 // End Session
-router.delete("/", async (req, res) => {
+router.delete("/",authMiddleware, async (req, res) => {
   const { authenticatedUser, startTime, activityLog, pagesVisited } = req.session;
 
   if (authenticatedUser) {

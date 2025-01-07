@@ -1,10 +1,11 @@
 const express = require("express");
 const User = require("../models/User");
 const preferencesSchema = require("../utils/validate");
+const authMiddleware = require("../middleware/authMiddleware");
 const router = express.Router();
 
 // Save Preferences
-router.post("/", async (req, res) => {
+router.post("/", authMiddleware, async (req, res) => {
   const { theme, notifications, language } = req.body;
 
   const { error } = preferencesSchema.validate(req.body);
@@ -24,7 +25,7 @@ router.post("/", async (req, res) => {
 });
 
 // Get Preferences
-router.get("/", (req, res) => {
+router.get("/", authMiddleware, (req, res) => {
   res.status(200).json({ preferences: req.session.user.preferences || {} });
 });
 
